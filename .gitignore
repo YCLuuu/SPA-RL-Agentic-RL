@@ -1,0 +1,35 @@
+# SPA-RL training artifacts
+ckt/
+records/
+logs/
+outputs/
+
+# Model & data downloads
+*.bin
+*.safetensors
+*.pt
+data/webshop/
+data/alfworld/
+data/virtualhome/
+search_index/
+
+# Evaluation outputs
+eval/*_eval*/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Demo artifacts
+data/demo/*_annotated.json
+data/demo/rl_training_demo.json
+
+# WebShop binaries downloaded during setup
+envs/webshop/src/webshop/web_agent_site/envs/chromedriver
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

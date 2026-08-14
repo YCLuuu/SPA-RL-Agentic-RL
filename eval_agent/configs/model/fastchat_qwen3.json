@@ -1,0 +1,10 @@
+{
+    "agent_class": "FastChatAgent",
+    "config": {
+        "controller_address": "http://localhost:21001",
+        "model_name": "qwen3_8b_webshop_merged",
+        "conv_template": "qwen3",
+        "max_new_tokens": 512,
+        "temperature": 0
+    }
+}

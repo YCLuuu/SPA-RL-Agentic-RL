@@ -1,0 +1,70 @@
+# AutoDL / A100-40GB 专用依赖（SPA 环境）
+# 与基础镜像 "PyTorch 2.5.0 / CUDA 12.1" 对齐，避免 torch 版本冲突。
+#
+# 相对 requirements.txt 的改动：
+#   * torch 由固定 2.5.1+cu121 放宽为 >=2.5,<2.6，兼容镜像自带 torch 2.5.0；
+#   * 移除 torch_npu（昇腾专用）、intel_extension_for_pytorch（Intel XPU 专用）、
+#     exllamav2 / xformers（A100 上不需要且依赖严格版本匹配）；
+#   * 移除 kaleido（plotly 静态图导出用，本管线不需要；且 0.2.1.post1 在
+#     国内镜像已不可用）；
+#   * 合并重复的 PyYAML 条目。
+#   * vllm 保留：正常安装即可；若它把 torch 顶到 2.6+，按 docs/RUNBOOK.md
+#     的说明装回 torch 2.5.1+cu121。
+#   * 移除 flash_attn：pip 隔离构建环境里没有 torch 导致源码编译必失败；
+#     本管线已全部改用 PyTorch 原生 attention（SFT --flash_attn False、
+#     PRM 不再指定 flash_attention_2），A100 上无 flash_attn 也能跑。
+#   * 移除 gradio：5.x 要求 Python >=3.10，而 SPA 环境是 3.9；gradio 仅
+#     FastChat 网页竞技场使用，本管线（SFT/PRM/PPO/评估）不依赖。
+#   * numpy 锁 1.26.3：与 webshop/setup.py 的 pin 一致（2.2.x 要求 Python
+#     >=3.10 且 sklearn 1.2.2 不兼容 numpy 2.x）。
+#   * 移除 llama：0.1.1 是 Python 2 时代包（setup.py 用 execfile，Python 3
+#     必失败）；仅 fastchat 的 GPTQ 量化模块用到，本管线不使用。
+
+# torch 排最前：保证后续包（如 vllm）解析时不会把它顶到 2.6+。
+torch>=2.5,<2.6
+
+accelerate==0.34.2
+aiohttp==3.10.10
+anthropic==0.52.0
+backoff==2.2.1
+colorama==0.4.6
+datasets==2.19.1
+deepspeed==0.16.5
+fastapi==0.115.12
+hdbscan==0.8.40
+httpx==0.28.1
+huggingface_hub==0.26.1
+intercode_bench==0.1.22
+jsonlines==4.0.0
+numpy==1.26.3
+openai==1.82.0
+opencc==1.1.9
+packaging==25.0
+pandas==2.2.3
+parse==1.20.2
+peft==0.13.2
+plotly==6.1.2
+polyglot==16.7.4
+prompt_toolkit==3.0.48
+psutil==6.1.0
+pycld2==0.42
+pydantic==2.11.5
+pytz==2024.2
+PyYAML==6.0.2
+ray==2.38.0
+Requests==2.32.3
+rich==14.0.0
+rwkv==0.8.29
+safetensors==0.5.3
+scienceworld==1.1.3
+scikit_learn==1.2.2
+sentence_transformers==3.2.1
+shortuuid==1.0.13
+tiktoken==0.9.0
+tqdm==4.66.5
+transformers==4.50.1
+trl==0.7.7
+uvicorn==0.34.2
+vertexai==1.71.1
+vllm==0.6.4.post1
+wandb==0.19.11
