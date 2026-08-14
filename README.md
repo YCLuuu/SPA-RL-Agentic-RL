@@ -1,6 +1,6 @@
 # SPA-RL（Qwen3-8B / WebShop）服务器实验手册
 
-目标硬件：**Linux 服务器，2× A100-40GB**。代码已按此配置（SFT/PPO 2 卡、
+目标硬件：**Linux 服务器，4× A100-40GB**。代码已按此配置（SFT/PPO 4 卡、
 DeepSpeed 去 offload、PRM 优化器 offload + 微批 1）。
 
 按顺序执行，每步都给出验证点。所有路径默认在仓库根目录 `spa-rl/` 下。
@@ -10,7 +10,7 @@ DeepSpeed 去 offload、PRM 优化器 offload + 微批 1）。
 ## 0. 服务器验收
 
 ```bash
-nvidia-smi                 # 应看到 2 张 A100 (40GB)，驱动 ≥ 525
+nvidia-smi                 # 应看到 4 张 A100 (40GB)，驱动 ≥ 525
 df -h /                    # 预留 ≥ 200GB 磁盘（模型+数据+ckpt）
 free -g                    # 内存建议 ≥ 128GB（PRM 全参训练优化器在 CPU）
 ```
@@ -59,7 +59,7 @@ pip install -r ppo/requirements.txt
 > SFT/PRM/PPO 全部走 PyTorch 原生 attention，A100 上运行无影响。
 
 验证：`python -c "import torch, transformers; print(torch.__version__, torch.cuda.device_count(), torch.cuda.get_device_name(0))"`
-应输出 `2.5.x 2 NVIDIA A100-PCIE-40GB` 之类（torch 必须是 2.5.x，不能是 2.6+）。
+应输出 `2.5.x 4 NVIDIA A100-PCIE-40GB` 之类（torch 必须是 2.5.x，不能是 2.6+）。
 
 > vLLM 装完若把 torch 顶到 2.6+，用下面命令装回：
 > `pip install torch==2.5.1+cu121 --index-url https://download.pytorch.org/whl/cu121`
@@ -146,7 +146,7 @@ bash exploration/webshop/my_generate_response_webshop.sh
 # 产出：exploration/webshop/exploration_outputs/explore/*.json
 ```
 
-脚本已按 2 卡配置：2 个 vLLM worker（GPU 0/1）+ 16 个探索进程，约数小时。
+脚本已按 4 卡配置：4 个 vLLM worker（GPU 0-3）+ 16 个探索进程，约数小时。
 
 ## 9. 轨迹整理（PRM 训练数据）
 
@@ -158,7 +158,7 @@ python prm/data_org.py
 ## 10. 训练 Progress Estimator
 
 ```bash
-deepspeed --include=localhost:0,1 prm/train_our_progress_model.py \
+deepspeed --include=localhost:0,1,2,3 prm/train_our_progress_model.py \
   --model_path ckt/qwen3_8b_webshop_sft_merged \
   --train_path exploration/webshop/exploration_outputs/exploration.json \
   --val_path exploration/webshop/exploration_outputs/exploration_tiny.json \
@@ -232,7 +232,7 @@ cat eval/webshop_eval_qwen3/metrics.json
 | vLLM worker 起不来 | 看 `eval/webshop_eval_qwen3/logs/model_worker.log`，多为模型路径或显存 |
 | 探索阶段模型名不匹配 | 确认 `ckt/qwen3_8b_webshop_sft_merged` 存在且与脚本 `cur_model_name` 一致 |
 
-## 预计耗时（2× A100-40GB）
+## 预计耗时（4× A100-40GB）
 
 | 阶段 | 预估 |
 | --- | --- |

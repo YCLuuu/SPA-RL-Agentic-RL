@@ -5,16 +5,16 @@
 
 set -e
 
-node_num=2                       # number of GPUs
+node_num=4                       # number of GPUs
 batch_size=16
 micro_batch_size=1
 accumulation_step=$((batch_size / node_num / micro_batch_size))
 
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 
 model_path="Qwen/Qwen3-8B"
 
-deepspeed --include=localhost:0,1 sft/train_sft_lora_qwen3.py \
+deepspeed --include=localhost:0,1,2,3 sft/train_sft_lora_qwen3.py \
     --model_name_or_path ${model_path} \
     --data_path data/webshop_sft.json \
     --bf16 True \

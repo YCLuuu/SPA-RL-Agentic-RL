@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Explore trajectories with the Qwen3-8B SFT baseline (2 x A100-40GB).
+# Explore trajectories with the Qwen3-8B SFT baseline (4 x A100-40GB).
 
-gpu_nodes=(0 1)
-sample_num_workers=2
+gpu_nodes=(0 1 2 3)
+sample_num_workers=4
 save_path=exploration/webshop/exploration_outputs/
 logs_path=${save_path}logs
 mkdir -p ${logs_path}
 save_dir=ckt/
 cur_model_name=qwen3_8b_webshop_sft_merged
 worker_num=16
-sample_node_num=2
+sample_node_num=4
 task=webshop
 
 # launch the FastChat controller

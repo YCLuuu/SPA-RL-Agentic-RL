@@ -5,13 +5,13 @@
 set -e
 
 export PYTHONPATH=./
-export CUDA_VISIBLE_DEVICES="0,1"
+export CUDA_VISIBLE_DEVICES="0,1,2,3"
 
 export MODEL_TYPE="qwen3-8b"
 export MODEL_PATH="ckt/qwen3_8b_webshop_sft_merged"
 
 torchrun \
-    --nproc_per_node 2 \
+    --nproc_per_node 4 \
     --nnodes 1 \
     --node_rank 0 \
     --master_addr localhost \
